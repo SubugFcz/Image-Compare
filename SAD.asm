@@ -86,46 +86,46 @@ Loop2:		slti	$8, $7, 3 		# Loop2 command. Loop 2 is calculating B and then the d
 
 Bbigger: 	sub	$13, $11, $10		# Calculate the difference if B is the bigger int
 		add	$28, $28, $13	
-		j		After1
+		j	After1
 
 Abigger: 	sub	$13, $10, $11		# Calculate the difference if A is the bigger int
 		add	$28, $28, $13
-		j		After1
+		j	After1
 
 After1: 	srl 	$5, $5, 8		# Shift 8 A for green then red
-		srl		$9, $9, 8	# Shift 8 B for green then red
+		srl	$9, $9, 8		# Shift 8 B for green then red
 
 Inc2:		addi 	$7, $7, 1 		# Loop increment just like i++ in java for loop
-		j 		Loop2 		# Jump to Loop2
+		j 	Loop2 			# Jump to Loop2
 
 White:		slti	$19, $28, 100		# Assign white if SAD is in the range
-		beq		$19, $0, Blue
-		sw		$20, Result($3)
-		j		Inc1
+		beq	$19, $0, Blue
+		sw	$20, Result($3)
+		j	Inc1
 
 Blue: 		slti	$19, $28, 200		# Assign blue if SAD is in the range
-		beq		$19, $0, Green
+		beq	$19, $0, Green
 		addi	$6, $6, 1
-		sw		$23, Result($3)
-		j		Inc1
+		sw	$23, Result($3)
+		j	Inc1
 
 Green: 		slti	$19, $28, 300		# Assign green if SAD is in the range
-		beq		$19, $0, Red
+		beq	$19, $0, Red
 		addi	$6, $6, 1
-		sw		$22, Result($3)
-		j		Inc1
+		sw	$22, Result($3)
+		j	Inc1
 
 Red:		slti	$19, $28, 766		# Assign red if SAD is in the range
 		addi	$6, $6, 1
-		sw		$21, Result($3)
-		j		Inc1
+		sw	$21, Result($3)
+		j	Inc1
 
 Inc1:		addi 	$3, $3, 4 		# Loop increment just like i++ in java for loop
-		j 		Loop1 		# Jump to Loop1
+		j 	Loop1 			# Jump to Loop1
 
 		################################################################
 Report:		addi	$1, $0, Result		# Set base address of Result image.
-		swi		533		# Display Result output image.
+		swi	533			# Display Result output image.
 						# This checks that the Result image
 						# matches the correct answer and
 						# reports num incorrect pixels in $2.
