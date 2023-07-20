@@ -39,100 +39,100 @@
 
 
 .data
-ImageA:      .alloc	1024		# allocate image data space
-ImageB:	     .alloc 1024		# allocate image data space
-Result:      .alloc	1024		# allocate output data space
+ImageA:      .alloc	1024			# allocate image data space
+ImageB:	     .alloc 	1024			# allocate image data space
+Result:      .alloc	1024			# allocate output data space
 
 .text
-Compare: addi	$1, $0, ImageA	# set memory base
+Compare: 	addi	$1, $0, ImageA		# set memory base
 		################################################################
-		 addi    $2, $0, 0		# optional: set starting TileNum 
-			    				# (you can change it to any num
-								# btwn 0 and 135). Or comment
-								# out: if $2 is undefined,
-								# random Tiles are picked.
+		addi    $2, $0, 0		# optional: set starting TileNum 
+			    			# (you can change it to any num
+						# btwn 0 and 135). Or comment
+						# out: if $2 is undefined,
+						# random Tiles are picked.
 		################################################################					
-		swi		600				# create and display images
-								# stored in memory starting at
-								# address in $1
+		swi	600			# create and display images
+						# stored in memory starting at
+						# address in $1
 		################################################################					
 
-		addi 	$3, $0, 0 				# Create new counter for the loop1
-		addi 	$6, $0, 0				# Count not white
+		addi 	$3, $0, 0 		# Create new counter for the loop1
+		addi 	$6, $0, 0		# Count not white
 		
-		addi 	$23, $0, 0x0000FF 		# Blue color assignment
-		lui		$21, 0x0000FF 			# Red color assignment
-		addi	$20, $0, 0xFFFFFF 		# White color assignment
-		sll		$22, $23, 8 			# Green color assignment
+		addi 	$23, $0, 0x0000FF 	# Blue color assignment
+		lui	$21, 0x0000FF 		# Red color assignment
+		addi	$20, $0, 0xFFFFFF 	# White color assignment
+		sll	$22, $23, 8 		# Green color assignment
 
-Loop1:	lw 		$5, ImageA($3)	# get the int value for image A
-		lw		$9, ImageB($3)	# get the int value for image B
+Loop1:		lw 	$5, ImageA($3)		# get the int value for image A
+		lw	$9, ImageB($3)		# get the int value for image B
 
-		slti	$4, $3, 4096 	# Loop1 command
-		beq		$4, $0, Report 	# Base case exit the loop
+		slti	$4, $3, 4096 		# Loop1 command
+		beq	$4, $0, Report 		# Base case exit the loop
 
 		addi	$7, $0, 0 		# Create new counter for the loop2
 		addi	$28, $0, 0		# Reset SAD
-		addi	$27, $0, 255	# for Masking 
+		addi	$27, $0, 255		# for Masking 
 
-Loop2:	slti	$8, $7, 3 		# Loop2 command. Loop 2 is calculating B and then the difference, and then SAD. Then do the G then R.
-		beq		$8, $0, White 	# Base case exit the inner loop
+Loop2:		slti	$8, $7, 3 		# Loop2 command. Loop 2 is calculating B and then the difference, and then SAD. Then do the G then R.
+		beq	$8, $0, White 		# Base case exit the inner loop
 
-		and		$10, $5, $27	# Blue value for A then green then red
-		and 	$11, $9, $27	# Blue value for B then green then red
+		and	$10, $5, $27		# Blue value for A then green then red
+		and 	$11, $9, $27		# Blue value for B then green then red
 
-		slt		$12, $10, $11	# This slt and beq set that if A is bigger, jump to Abigger. Else, jump to Bbigger.
-		beq		$12, $0, Abigger
+		slt	$12, $10, $11		# This slt and beq set that if A is bigger, jump to Abigger. Else, jump to Bbigger.
+		beq	$12, $0, Abigger
 
-Bbigger: sub	$13, $11, $10	# Calculate the difference if B is the bigger int
-		 add	$28, $28, $13	
-		 j		After1
+Bbigger: 	sub	$13, $11, $10		# Calculate the difference if B is the bigger int
+		add	$28, $28, $13	
+		j		After1
 
-Abigger: sub	$13, $10, $11	# Calculate the difference if A is the bigger int
-		 add	$28, $28, $13
-		 j		After1
+Abigger: 	sub	$13, $10, $11		# Calculate the difference if A is the bigger int
+		add	$28, $28, $13
+		j		After1
 
-After1: srl 	$5, $5, 8		# Shift 8 A for green then red
-		srl		$9, $9, 8		# Shift 8 B for green then red
+After1: 	srl 	$5, $5, 8		# Shift 8 A for green then red
+		srl		$9, $9, 8	# Shift 8 B for green then red
 
-Inc2:	addi 	$7, $7, 1 		# Loop increment just like i++ in java for loop
-		j 		Loop2 			# Jump to Loop2
+Inc2:		addi 	$7, $7, 1 		# Loop increment just like i++ in java for loop
+		j 		Loop2 		# Jump to Loop2
 
-White:	slti	$19, $28, 100	# Assign white if SAD is in the range
+White:		slti	$19, $28, 100		# Assign white if SAD is in the range
 		beq		$19, $0, Blue
 		sw		$20, Result($3)
 		j		Inc1
 
-Blue: 	slti	$19, $28, 200	# Assign blue if SAD is in the range
+Blue: 		slti	$19, $28, 200		# Assign blue if SAD is in the range
 		beq		$19, $0, Green
 		addi	$6, $6, 1
 		sw		$23, Result($3)
 		j		Inc1
 
-Green: 	slti	$19, $28, 300	# Assign green if SAD is in the range
+Green: 		slti	$19, $28, 300		# Assign green if SAD is in the range
 		beq		$19, $0, Red
 		addi	$6, $6, 1
 		sw		$22, Result($3)
 		j		Inc1
 
-Red:	slti	$19, $28, 766	# Assign red if SAD is in the range
+Red:		slti	$19, $28, 766		# Assign red if SAD is in the range
 		addi	$6, $6, 1
 		sw		$21, Result($3)
 		j		Inc1
 
-Inc1:	addi 	$3, $3, 4 		# Loop increment just like i++ in java for loop
-		j 		Loop1 			# Jump to Loop1
+Inc1:		addi 	$3, $3, 4 		# Loop increment just like i++ in java for loop
+		j 		Loop1 		# Jump to Loop1
 
 		################################################################
-Report:	addi	$1, $0, Result	# Set base address of Result image.
-		swi		533				# Display Result output image.
-								# This checks that the Result image
-								# matches the correct answer and
-								# reports num incorrect pixels in $2.
-								# This also reports the correct number
-								# of nonmatching pixels in $3, so
-								# you can confirm that your $6 == $3.
+Report:		addi	$1, $0, Result		# Set base address of Result image.
+		swi		533		# Display Result output image.
+						# This checks that the Result image
+						# matches the correct answer and
+						# reports num incorrect pixels in $2.
+						# This also reports the correct number
+						# of nonmatching pixels in $3, so
+						# you can confirm that your $6 == $3.
 		################################################################					
-		jr      $31				# return to OS (don't delete)
+		jr      $31			# return to OS (don't delete)
 
 
